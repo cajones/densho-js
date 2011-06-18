@@ -28,3 +28,17 @@
 // authors and should not be interpreted as representing official policies, either expressed
 //
 
+if(!window.densho) {
+    window.densho = {
+            namespace : function(ns, container) {
+                var n = ns.split('.');
+                var p = container || window || {};
+                for(var i = 0; i<=n.length; i++) {
+                    p[n[i]] = p[n[i]] || {};
+                    p = p[n[i]];
+                }
+                return parent;
+            }
+    };
+}
+    
