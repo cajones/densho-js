@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+        <script type="text/javascript" src="../densho.js"></script>
+        
+        <link rel="stylesheet" type="text/css" href="example.css" />
+    </head>
+    <body>
+        <header>densho Namespace examples</header>
+        <nav>
+            <a href="example1.html">Example 1 - Namespaces</a>
+            <a href="example1.html">Example 2 - Hijacking hyperlinks</a>
+            <a href="example1.html">Example 3 - Hijacking form submission</a>
+            <a href="example1.html">Example 4 - Progressive enhancement</a>
+        </nav>
+        <section>
+            <div id="content-area">
+                Javascript namespaces can be easily created using the namespace plugin.
+                <div class="code-example">
+                    <code>
+                    $.namespace("my.cool.code");<br/>
+                    my.cool.code.Widget = { foo: "bar" };
+                    </code>
+                </div>
+            </div>
+        </section>
+        <footer></footer>
+        <script type="text/javascript">
+            $(document).hijax("#content-area");
+        </script>
+    </body>
+</html>
