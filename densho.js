@@ -51,12 +51,23 @@ var densho = {
         return (densho.type(obj) === type) ? obj : null;
     },
 
+    enumerable: {
+
+        first: function(test /*, ... sequence of items to test */ ) {
+            var items = Array.prototype.slice.call(arguments, 1);
+            for(var i = 0; i < items.length; i++) {
+                if (test(items[i])) return items[i];
+            }
+            return undefined;
+        }
+    },
+
     hijax: function() {
         var defaults = {
             dataType: "html",
             linkSelector: densho.DEFAULT_HIJAX_LINK_SELECTOR
         };
-        
+
         var selector = densho.as("string", arguments[0]),
             success = densho.as("function", arguments[0]),
             failure = densho.as("function", arguments[1]),
@@ -68,19 +79,24 @@ var densho = {
             function(result) {
                 $(selector).html(result);
             };
-            
+
             $links = this.is(options.linkSelector) ? this : this.find(options.linkSelector);
-            
+
             $links.each(function() {
                 var uri = $(this).attr("href");
                 var hijaxSelector = $(this).data("hijaxSelector") || "*";
-                
+
                 if (uri) $(this).click(function() {
                     $.ajax({
                         url: uri,
                         dataType: options.dataType,
                         success: function(data, textStatus, jqXHR) {
-                            success($(data).filter(hijaxSelector), textStatus, jqXHR);
+
+                            var result = densho.enumerable.first(function(item) {
+                                return item.length >= 1;
+                            }, $(data).find(hijaxSelector), $(data).filter(hijaxSelector));
+
+                            success(result, textStatus, jqXHR);
                         }
                     });
                     return false;
