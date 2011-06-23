@@ -42,7 +42,9 @@ var densho = {
     },
 
     type: function(obj) {
-        if (!jQuery) throw new Exception("jQuery 1.5.1 is required");
+        if (!jQuery) {
+            throw new Exception("jQuery 1.5.1 is required");
+        }
 
         return jQuery.type(obj);
     },
@@ -54,9 +56,29 @@ var densho = {
     enumerable: {
 
         first: function(test /*, ... sequence of items to test */ ) {
+            var predicate = densho.as("function", test) ||
+            function(value) {
+                return value;
+            };
             var items = Array.prototype.slice.call(arguments, 1);
-            for(var i = 0; i < items.length; i++) {
-                if (test(items[i])) return items[i];
+            for (var i = 0; i < items.length; i++) {
+                if (predicate(items[i])) {
+                    return items[i];
+                }
+            }
+            return undefined;
+        },
+
+        last: function(test /*, ... sequence of items to test */ ) {
+            var predicate = densho.as("function", test) ||
+            function(value) {
+                return value;
+            };
+            var items = Array.prototype.slice.call(arguments, 1);
+            for (var i = items.length; i === 0; i--) {
+                if (predicate(items[i])) {
+                    return items[i];
+                }
             }
             return undefined;
         }
@@ -65,7 +87,8 @@ var densho = {
     hijax: function() {
         var defaults = {
             dataType: "html",
-            linkSelector: densho.DEFAULT_HIJAX_LINK_SELECTOR
+            linkSelector: densho.DEFAULT_HIJAX_LINK_SELECTOR,
+            ajaxResultSelector: "*"
         };
 
         var selector = densho.as("string", arguments[0]),
@@ -77,6 +100,7 @@ var densho = {
         (function($) {
             success = success ||
             function(result) {
+                
                 $(selector).html(result);
             };
 
@@ -84,23 +108,24 @@ var densho = {
 
             $links.each(function() {
                 var uri = $(this).attr("href");
-                var hijaxSelector = $(this).data("hijaxSelector") || "*";
+                var hijaxSelector = $(this).data("hijaxSelector") || options.ajaxResultSelector;
 
-                if (uri) $(this).click(function() {
-                    $.ajax({
-                        url: uri,
-                        dataType: options.dataType,
-                        success: function(data, textStatus, jqXHR) {
+                if (uri) {
+                    $(this).click(function() {
+                        $.ajax({
+                            url: uri,
+                            dataType: options.dataType,
+                            success: function(data, textStatus, jqXHR) {
+                                var result = densho.enumerable.first(function(item) {
+                                    return item.length >= 1;
+                                }, $(data).find(hijaxSelector), $(data).filter(hijaxSelector));
 
-                            var result = densho.enumerable.first(function(item) {
-                                return item.length >= 1;
-                            }, $(data).find(hijaxSelector), $(data).filter(hijaxSelector));
-
-                            success(result, textStatus, jqXHR);
-                        }
+                                success(result, textStatus, jqXHR);
+                            }
+                        });
+                        return false;
                     });
-                    return false;
-                });
+                }
             });
         }).apply(this, [jQuery]);
     },
